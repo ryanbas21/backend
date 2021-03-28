@@ -23,6 +23,8 @@ import Data.Aeson
     (.:),
   )
 import qualified Data.ByteString as BS
+import qualified Data.ByteString.Char8 as B
+import qualified Crypto.KDF.BCrypt as BCrypt
 import Data.Char (isAscii)
 import qualified Data.Text as T (Text, all, length, pack, unpack)
 import Data.Text.Encoding (decodeUtf8, encodeUtf8)
@@ -52,8 +54,13 @@ data User
 instance ToJSON User where
   toJSON (User (EmailPassword _email _password)) =
     object ["email" .= _email, "password" .= _password]
+  toJSON (FailedRegistration (Error errs)) =
+    object ["errors" .= errs ]
 
 instance FromJSON User where
+  parseJSON = withObject "FailedRegistration" $ \o -> do
+    err <- o .: "errors"
+    pure $ FailedRegistration Errors err
   parseJSON = withObject "User" $ \o -> do
     email <- o .: "email"
     password <- o .: "password"
@@ -88,4 +95,12 @@ validateUserRegistration (User usr) = case checkEmail usr of
     checkPasswordAlphaNumeric (EmailPassword email password) =
       if T.all isAscii password
         then Success password
-        else Failure $ Error [T.pack "Password can only contain numbers and letters"]
+        else Failure $ Error [T.pack "Password can only contain numbers and letters and special symbols"]
+
+hashPassword :: User -> User
+hashPassword (User EmailPassword email password) = 
+  let
+    pw = encodeUtf8 password 
+    hashedPassword = BCrypt.hashPassword 12 pw 
+  in
+  User $ EmailPassword email hashedPassword
