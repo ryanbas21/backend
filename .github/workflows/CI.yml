@@ -78,19 +78,3 @@ jobs:
       uses: domdere/haskell-lint-action@v1.0.2
     - name: Build generator
       run: cd generator && stack build
-
-    - name: Package generator
-      shell: bash
-      run: |
-        mkdir package
-        cd generator
-        dir=$(stack path --dist-dir)/build/generator
-        [[ -e "$dir/generator" ]] && cp "$dir/generator" ../package/myRetroGenerator
-        [[ -e "$dir/generator.exe" ]] && cp "$dir/generator.exe" ../package/myRetroGenerator.exe
-        cd ..
-        cp -r static template package/
-    - name: Upload artifact
-      uses: actions/upload-artifact@v1
-      with:
-        name: generator-${{ runner.os }}
-        path: package
