@@ -12,8 +12,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Setup Stack
-      uses: mstksg/setup-stack@v1
     - name: Run Haskell Tests
       # You may pin to the exact commit or the version.
       # uses: sol/run-haskell-tests@0eab35ba810e8a885517476f4caebb30ff32543b
