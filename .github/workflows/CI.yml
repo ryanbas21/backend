@@ -12,14 +12,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Run Haskell Tests
-      # You may pin to the exact commit or the version.
-      # uses: sol/run-haskell-tests@0eab35ba810e8a885517476f4caebb30ff32543b
-      uses: sol/run-haskell-tests@v1
-    - name: Haskell Linter
-      # You may pin to the exact commit or the version.
-      # uses: domdere/haskell-lint-action@f865aa0bfb6db9632e0f905dee4b0716a76a5494
-      uses: domdere/haskell-lint-action@v1.0.2
     - name: Checkout repo
       uses: actions/checkout@v2
 
@@ -51,7 +43,14 @@ jobs:
       with:
         path: 'C:\Users\runneradmin\AppData\Local\Programs\stack'
         key: ghc-${{ hashFiles('generator/stack.yaml.lock') }}
-
+    - name: Run Haskell Tests
+      # You may pin to the exact commit or the version.
+      # uses: sol/run-haskell-tests@0eab35ba810e8a885517476f4caebb30ff32543b
+      uses: sol/run-haskell-tests@v1
+    - name: Haskell Linter
+      # You may pin to the exact commit or the version.
+      # uses: domdere/haskell-lint-action@f865aa0bfb6db9632e0f905dee4b0716a76a5494
+      uses: domdere/haskell-lint-action@v1.0.2
     - name: Build generator
       run: cd generator && stack build
 
