@@ -1,0 +1,74 @@
+name: Haskell CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Setup Stack
+      uses: mstksg/setup-stack@v1
+    - name: Run Haskell Tests
+      # You may pin to the exact commit or the version.
+      # uses: sol/run-haskell-tests@0eab35ba810e8a885517476f4caebb30ff32543b
+      uses: sol/run-haskell-tests@v1
+    - name: Haskell Linter
+      # You may pin to the exact commit or the version.
+      # uses: domdere/haskell-lint-action@f865aa0bfb6db9632e0f905dee4b0716a76a5494
+      uses: domdere/haskell-lint-action@v1.0.2
+    - name: Checkout repo
+      uses: actions/checkout@v2
+
+    - name: Install stack (MacOS)
+      run: curl -sSL https://get.haskellstack.org/ | sh
+      if: matrix.os == 'macos-10.15'
+
+    - name: Install stack (Windows)
+      run: choco install haskell-stack
+      if: matrix.os == 'windows-2019'
+
+    - name: Cache dependencies (Unix)
+      uses: actions/cache@v1
+      if: matrix.os != 'windows-2019'
+      with:
+        path: ~/.stack
+        key: ${{ runner.os }}-store-${{ hashFiles('generator/stack.yaml.lock') }}-${{ hashFiles('generator/generator.cabal') }}
+
+    - name: Cache dependencies (Windows)
+      uses: actions/cache@v1
+      if: matrix.os == 'windows-2019'
+      with:
+        path: 'C:\Users\runneradmin\AppData\Roaming\stack'
+        key: ${{ runner.os }}-store-${{ hashFiles('generator/stack.yaml.lock') }}-${{ hashFiles('generator/generator.cabal') }}
+
+    - name: Cache GHC (Windows)
+      uses: actions/cache@v1
+      if: matrix.os == 'windows-2019'
+      with:
+        path: 'C:\Users\runneradmin\AppData\Local\Programs\stack'
+        key: ghc-${{ hashFiles('generator/stack.yaml.lock') }}
+
+    - name: Build generator
+      run: cd generator && stack build
+
+    - name: Package generator
+      shell: bash
+      run: |
+        mkdir package
+        cd generator
+        dir=$(stack path --dist-dir)/build/generator
+        [[ -e "$dir/generator" ]] && cp "$dir/generator" ../package/myRetroGenerator
+        [[ -e "$dir/generator.exe" ]] && cp "$dir/generator.exe" ../package/myRetroGenerator.exe
+        cd ..
+        cp -r static template package/
+    - name: Upload artifact
+      uses: actions/upload-artifact@v1
+      with:
+        name: generator-${{ runner.os }}
+        path: package
