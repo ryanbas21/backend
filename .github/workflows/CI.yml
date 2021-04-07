@@ -36,30 +36,6 @@ jobs:
         path: .stack-work
         key: ${{ runner.os }}-stack-work
 
-    - name: Cache hledger-lib/.stack-work
-      uses: actions/cache@v1
-      with:
-        path: hledger-lib/.stack-work
-        key: ${{ runner.os }}-hledger-lib-stack-work
-
-    - name: Cache hledger/.stack-work
-      uses: actions/cache@v1
-      with:
-        path: hledger/.stack-work
-        key: ${{ runner.os }}-hledger-stack-work
-
-    - name: Cache hledger-ui/.stack-work
-      uses: actions/cache@v1
-      with:
-        path: hledger-ui/.stack-work
-        key: ${{ runner.os }}-hledger-ui-stack-work
-
-    - name: Cache hledger-web/.stack-work
-      uses: actions/cache@v1
-      with:
-        path: hledger-web/.stack-work
-        key: ${{ runner.os }}-hledger-web-stack-work
-
     - name: Check out
       uses: actions/checkout@v2
 
