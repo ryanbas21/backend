@@ -11,8 +11,8 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        plan:
-        - { build: stack, resolver: "--resolver lts-15"  }   # ghc-8.8.2
+       # plan: 
+       #   - { build: stack, resolver: "--resolver lts-15"  }
 
     runs-on: ${{ matrix.os }}
 
@@ -23,7 +23,6 @@ jobs:
       with:
         path: ~/.stack
         key: ${{ runner.os }}-stack
-        #key: ${{ runner.os }}-${{ matrix.resolver }}-stack
 
     - name: Cache ~/.local/bin
       uses: actions/cache@v1
@@ -66,18 +65,11 @@ jobs:
 
     - name: Install stack (ubuntu)
       if: matrix.os == 'ubuntu-latest'
-      # curl -L https://get.haskellstack.org/stable/linux-x86_64.tar.gz | tar xz --wildcards --strip-components=1 -C $INSTALLDIR '*/stack'
-      # mkdir -p ~/.local/bin
-      # export PATH=~/.local/bin:$PATH
-      # if [[ ! -x ~/.local/bin/stack ]]; then curl -L https://www.stackage.org/stack/linux-x86_64 | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'; chmod a+x ~/.local/bin/stack; fi
       run: |
         stack --version
-    # - if [[ ! -x ~/.local/bin/shelltest ]]; then stack install shelltestrunner-1.9; fi
-    # - shelltest --version
 
     - name: Install stack (mac)
       if: matrix.os == 'macos-latest'
-      # curl --insecure -L https://get.haskellstack.org/stable/osx-x86_64.tar.gz | tar xz --strip-components=1 --include '*/stack' -C $INSTALLDIR
       run: |
         brew install haskell-stack
         stack --version
@@ -93,7 +85,6 @@ jobs:
     - name: Install haskell deps
       run: |
         stack --install-ghc $ARGS test --bench --only-dependencies
-      #  stack --no-terminal --install-ghc $ARGS test --bench --only-dependencies
       env:
         ARGS: ${{ matrix.plan.resolver }}
         # BUILD: ${{ matrix.plan.build }}
@@ -104,23 +95,7 @@ jobs:
       #  stack --no-terminal $ARGS test --bench --no-run-benchmarks --haddock --no-haddock-deps
       env:
         ARGS: ${{ matrix.plan.resolver }}
-        # BUILD: ${{ matrix.plan.build }}
 
-    # run hledger-lib/hledger functional tests, skipping the ones for addons
-    #- COLUMNS=80 stack exec -- shelltest --execdir -j16 tests -x /bin -x /addons
-
-    # - name: Zip exes (windows)
-    #   if: matrix.os == 'windows-latest'
-    #   run: |
-    #     #cd `stack path --local-bin`
-    #     7z a hledger.zip %HOME%/.local/bin/hledger %HOME%/.local/bin/hledger-web
-
-    # - name: Upload zip file (windows)
-    #   if: matrix.os == 'windows-latest'
-    #   uses: actions/upload-artifact@v1
-    #   with:
-    #     name: hledger.zip
-    #     path: hledger.zip
 
     - name: Haskell Linter
       # You may pin to the exact commit or the version.
